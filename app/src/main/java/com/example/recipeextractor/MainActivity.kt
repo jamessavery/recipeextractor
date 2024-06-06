@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.webkit.URLUtil.isValidUrl
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
@@ -23,6 +24,15 @@ class MainActivity : AppCompatActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
+        }
+
+        setupDisclaimer()
+    }
+
+    private fun setupDisclaimer() {
+        findViewById<TextView>(R.id.disclaimer).setOnClickListener {
+            val cookedWikiUrl = Uri.parse(Constants.COOKED_URL)
+            openSystemBrowser(cookedWikiUrl)
         }
     }
 
