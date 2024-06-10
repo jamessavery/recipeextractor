@@ -2,19 +2,20 @@ package com.example.recipeextractor
 
 import android.content.ClipboardManager
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
 import android.webkit.URLUtil.isValidUrl
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
 class MainActivity : AppCompatActivity() {
+
+    private var mostRecentUrl: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,12 +27,16 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        setupDisclaimer()
+        setupUi()
     }
 
-    private fun setupDisclaimer() {
+    private fun setupUi() {
         findViewById<TextView>(R.id.disclaimer).setOnClickListener {
             val cookedWikiUrl = Uri.parse(Constants.COOKED_URL)
+            openSystemBrowser(cookedWikiUrl)
+        }
+        findViewById<TextView>(R.id.reOpenButton).setOnClickListener {
+            val cookedWikiUrl = Uri.parse("${Constants.COOKED_URL}$mostRecentUrl")
             openSystemBrowser(cookedWikiUrl)
         }
     }
@@ -50,7 +55,7 @@ class MainActivity : AppCompatActivity() {
         val copiedText = clipData?.getItemAt(0)?.text?.toString()
 
         if (copiedText.isNullOrEmpty()) {
-            Toast.makeText(this, "Empty clipboard", Toast.LENGTH_SHORT).show()
+            println("Empty clipboard")
         } else {
             extractValidUrl(copiedText)
         }
@@ -67,7 +72,13 @@ class MainActivity : AppCompatActivity() {
     // Parses validated URL /w cooked.wiki
     // https://medium.com/asos-techblog/a-rundown-of-android-intent-selectors-youre-building-intents-wrong-fdb8d3e58ce2
     private fun onValidUrl(validatedText: String) {
-        val parsedUrl = Uri.parse("${Constants.COOKED_URL}/$validatedText")
+        if ("${Constants.COOKED_URL}$validatedText" == mostRecentUrl) {
+            findViewById<TextView>(R.id.reOpenButton).visibility = View.VISIBLE
+            println("Returning from viewing recipe") // TODO state management
+            return
+        }
+
+        val parsedUrl = Uri.parse("${Constants.COOKED_URL}$validatedText")
         Toast.makeText(this, parsedUrl.toString(), Toast.LENGTH_SHORT).show()
 
         openSystemBrowser(parsedUrl)
@@ -86,6 +97,7 @@ class MainActivity : AppCompatActivity() {
 
         targetIntent.selector = browserSelectorIntent
 
+        mostRecentUrl = parsedUrl.toString()
         startActivity(targetIntent)
     }
 
