@@ -5,39 +5,75 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import android.webkit.URLUtil.isValidUrl
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.example.recipeextractor.databinding.ActivityMainBinding
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
-    private var mostRecentUrl: String = ""
+    private lateinit var binding: ActivityMainBinding
+
+    private lateinit var viewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
+
+        viewModel = MainViewModel()
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+
         setupUi()
+        setupObservers()
     }
 
     private fun setupUi() {
-        findViewById<TextView>(R.id.disclaimer).setOnClickListener {
+        binding.disclaimer.setOnClickListener {
             val cookedWikiUrl = Uri.parse(Constants.COOKED_URL)
             openSystemBrowser(cookedWikiUrl)
         }
-        findViewById<TextView>(R.id.reOpenButton).setOnClickListener {
-            val cookedWikiUrl = Uri.parse("${Constants.COOKED_URL}$mostRecentUrl")
+        binding.reOpenButton.setOnClickListener {
+            val cookedWikiUrl = Uri.parse("${Constants.COOKED_URL}${viewModel.mostRecentUrl}")
             openSystemBrowser(cookedWikiUrl)
+        }
+    }
+
+    private fun setupObservers() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.event.collect {
+                    when (it) {
+                        is MainViewModel.Event.SuccessBrowserEvent -> openSystemBrowser(it.parsedUri)
+                        is MainViewModel.Event.ToastEvent -> processToastEvents(it.text)
+                        is MainViewModel.Event.AlreadyVisitedUrlEvent -> setUrlAlreadyVisited(it.isVisited)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun setUrlAlreadyVisited(isVisited: Boolean) {
+        if(isVisited) {
+            binding.reOpenButton.visibility = View.VISIBLE
+        } else {
+            binding.reOpenButton.visibility = View.GONE
         }
     }
 
@@ -57,31 +93,8 @@ class MainActivity : AppCompatActivity() {
         if (copiedText.isNullOrEmpty()) {
             println("Empty clipboard")
         } else {
-            extractValidUrl(copiedText)
+            viewModel.extractValidUrl(copiedText)
         }
-    }
-
-    private fun extractValidUrl(copiedText: String) {
-        if (isValidUrl(copiedText)) {
-            onValidUrl(copiedText)
-        } else {
-            Toast.makeText(this, "Invalid URL", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    // Parses validated URL /w cooked.wiki
-    // https://medium.com/asos-techblog/a-rundown-of-android-intent-selectors-youre-building-intents-wrong-fdb8d3e58ce2
-    private fun onValidUrl(validatedText: String) {
-        if ("${Constants.COOKED_URL}$validatedText" == mostRecentUrl) {
-            findViewById<TextView>(R.id.reOpenButton).visibility = View.VISIBLE
-            println("Returning from viewing recipe") // TODO state management
-            return
-        }
-
-        val parsedUrl = Uri.parse("${Constants.COOKED_URL}$validatedText")
-        Toast.makeText(this, parsedUrl.toString(), Toast.LENGTH_SHORT).show()
-
-        openSystemBrowser(parsedUrl)
     }
 
     private fun openSystemBrowser(parsedUrl: Uri) {
@@ -97,8 +110,12 @@ class MainActivity : AppCompatActivity() {
 
         targetIntent.selector = browserSelectorIntent
 
-        mostRecentUrl = parsedUrl.toString()
+        viewModel.mostRecentUrl = parsedUrl.toString()
         startActivity(targetIntent)
+    }
+
+    private fun processToastEvents(text: String?) {
+        Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
     }
 
 }
