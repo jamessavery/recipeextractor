@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Recipe Extractor</string>
-    <string name="instructions">1) Copy the URL of the app you want AI to summarise. \n 2) Open this app to automatically open copied link in the browser using cooked.wiki.</string>
-    <string name="disclaimer">This app uses <b><u>cooked.wiki</u></b> to function. \n This is a non-profit tool which cooked.wiki to the heavy lifting.\n Please support the original creator.</string>
+    <string name="instructions_title">Instructions</string>
+    <string name="instructions">1) Copy the URL of the recipe you want AI to summarise. \n 2) Open this app to automatically open copied link in the browser using cooked.wiki.</string>
+    <string name="disclaimer">This app uses <b><u>cooked.wiki</u></b> to function. \n This is a non-profit tool which uses cooked.wiki to do the heavy lifting. \n Please support the original creator by browsing <b><u>cooked.wiki</u></b></string>
     <string name="reopen_button">Re-open most recent recipe</string>
 </resources>
