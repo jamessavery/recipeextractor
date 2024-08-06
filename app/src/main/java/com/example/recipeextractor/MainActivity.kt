@@ -25,6 +25,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.recipeextractor.ui.DisclaimerText
 import com.example.recipeextractor.ui.InstructionsText
 import com.example.recipeextractor.ui.TitleText
+import com.example.recipeextractor.ui.RecipeExtractorTheme
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -37,8 +38,10 @@ class MainActivity : ComponentActivity() {
         viewModel = MainViewModel()
 
         setContent {
-            Surface(color = MaterialTheme.colorScheme.background) {
-                InstructionsScreen()
+            RecipeExtractorTheme {
+                Surface(color = MaterialTheme.colorScheme.background) {
+                    InstructionsScreen()
+                }
             }
         }
 
