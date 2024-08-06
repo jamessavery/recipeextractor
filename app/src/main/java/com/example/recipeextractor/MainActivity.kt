@@ -4,54 +4,71 @@ import android.content.ClipboardManager
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.View
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.example.recipeextractor.databinding.ActivityMainBinding
+import com.example.recipeextractor.ui.DisclaimerText
+import com.example.recipeextractor.ui.InstructionsText
+import com.example.recipeextractor.ui.TitleText
 import kotlinx.coroutines.launch
 
-class MainActivity : AppCompatActivity() {
-
-    private lateinit var binding: ActivityMainBinding
+class MainActivity : ComponentActivity() {
 
     private lateinit var viewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_main)
-
         viewModel = MainViewModel()
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
+        setContent {
+            Surface(color = MaterialTheme.colorScheme.background) {
+                InstructionsScreen()
+            }
         }
 
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
-
-        setupUi()
         setupObservers()
     }
 
-    private fun setupUi() {
-        binding.disclaimer.setOnClickListener {
-            val cookedWikiUrl = Uri.parse(Constants.COOKED_URL)
-            openSystemBrowser(cookedWikiUrl)
-        }
-        binding.reOpenButton.setOnClickListener {
-            val cookedWikiUrl = Uri.parse("${Constants.COOKED_URL}${viewModel.mostRecentUrl}")
-            openSystemBrowser(cookedWikiUrl)
+    @Preview(showBackground = true)
+    @Composable
+    fun InstructionsScreen(
+        modifier: Modifier = Modifier,
+    ) {
+        Column(
+            modifier = modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = modifier.padding(top = 50.dp)
+            ) {
+                TitleText(text = stringResource(id = R.string.instructions_title))
+                InstructionsText(text = stringResource(id = R.string.instructions))
+            }
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = modifier.padding(bottom = 30.dp)
+            ) {
+                DisclaimerText(text = stringResource(id = R.string.disclaimer))
+            }
         }
     }
 
@@ -69,12 +86,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // TODO replace with recipe history LazyColumn
     private fun setUrlAlreadyVisited(isVisited: Boolean) {
-        if(isVisited) {
-            binding.reOpenButton.visibility = View.VISIBLE
-        } else {
-            binding.reOpenButton.visibility = View.GONE
-        }
+//        if (isVisited) {
+//            binding.reOpenButton.visibility = View.VISIBLE
+//        } else {
+//            binding.reOpenButton.visibility = View.GONE
+//        }
     }
 
     // Utilising the clipboard is only allowed when app is fully created (focused) & in the foreground
