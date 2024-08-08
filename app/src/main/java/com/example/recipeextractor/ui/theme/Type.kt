@@ -1,4 +1,4 @@
-package com.example.recipeextractor.ui
+package com.example.recipeextractor.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
