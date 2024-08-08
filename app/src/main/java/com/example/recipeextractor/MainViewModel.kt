@@ -8,13 +8,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
-class MainViewModel() : ViewModel() {
-
-    // TODO Add API endpoint which scraps net for recipes so this tool removes ads -
-    // 1) https://www.google.com/search?q=api+endpoint+which+returns+recipes+URLs+reddit&sca_esv=6182fbdd58dbe34a&sca_upv=1&sxsrf=ADLYWIKMCmp0nyg5Xsdk5uFO1AcpyjRcGQ%3A1719251412995&ei=1LF5Zqa1PIC5hbIP0roC&ved=0ahUKEwim74DO5vSGAxWAXEEAHVKdAAAQ4dUDCBA&uact=5&oq=api+endpoint+which+returns+recipes+URLs+reddit&gs_lp=Egxnd3Mtd2l6LXNlcnAiLmFwaSBlbmRwb2ludCB3aGljaCByZXR1cm5zIHJlY2lwZXMgVVJMcyByZWRkaXQyCBAAGIAEGKIEMggQABiABBiiBDIIEAAYogQYiQUyCBAAGIAEGKIESN8LUMkBWMcIcAJ4AZABAZgBqQGgAbsEqgEDNi4xuAEDyAEA-AEBmAIHoALWAsICChAAGLADGNYEGEfCAgoQIRigARjDBBgKmAMAiAYBkAYIkgcBN6AHpxo&sclient=gws-wiz-serp
-    // 2) https://api2.bigoven.com/ , which is enabled if success response & works
-    // Note - requires api key so hide feature behind feature flag
-    // TODO After above ^ prac w centralised error handling - https://medium.com/@mihodihasan/android-centralized-error-handling-in-network-calls-8024a4f5f721
+class MainViewModel : ViewModel() {
 
     private val _event: MutableSharedFlow<Event> = MutableSharedFlow()
     val event: SharedFlow<Event> = _event
